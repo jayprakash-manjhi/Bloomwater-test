@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body{padding: 0px;margin: 0px;font-family: Trebuchet MS,Arial,sans-serif;}
+      .text-right{float: right;}
+      ul{overflow: hidden;background: #000;margin: 0px;}
+      .list-inline{float: left;list-style: none;}
+      .trade-item{padding: 8px;margin:8px;min-width: 200px;color: #fff;font-size: 12px;border-right: 1px solid #2c2e37;}
+      .trade-item .name{text-transform: uppercase;height: 20px;display: inline-block;}
+      .trade-item .dot{background: #939393;width: 4px;height: 4px;display: inline-block;margin-left: 8px;border-radius: 50%;vertical-align: middle;}
+      .trade-item .percentage{font-size:24px;}
+      .trade-item .volume{margin-left: 8px;}
+      .trade-item .price-data.up, .trade-item .volume.up, .trade-item .percentage.up{color: #3cbc98;}
+      .trade-item .price-data.down, .trade-item .volume.down,.trade-item .percentage.down{color: #ff4a68;}
+      i {border: solid black;border-width: 0 3px 3px 0;display: inline-block;padding: 3px;vertical-align: middle;}
+      .up-arrow {transform: rotate(-135deg);-webkit-transform: rotate(-135deg);border-color: #3cbc98;}
+      .down-arrow {transform: rotate(45deg);-webkit-transform: rotate(45deg);border-color: #ff4a68;}
+    </style>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <title>BloomWater Technical Test</title>
+  </head>
+
+  <body>
+    <div id="react-container"></div>
+
+    <script type="text/babel">
+        class Trade extends React.Component {
+            constructor(props) {
+                super(props)
+                this.state = {
+                    timer: 0,
+                    initialIndex: 0,
+                    tradeListData: [
+                                        {
+                                            "name": "S&P",
+                                            "prices": [2420, 2421, 2422, 2423, 2424],
+                                            "percentage": [1, -1, 2,0,-0.5],
+                                            "volume": [45.15,46.67,47.78,50.15,51.15]
+                                        },
+                                        {
+                                            "name": "GOLD",
+                                            "prices": [12420, 22421, 12422, 12423, 12424],
+                                            "percentage": [1.3, -1.2, 2.1,0,-0.15],
+                                            "volume": [345.15,346.67,347.78,350.15,351.15]
+                                        }
+                                    ]
+                }
+                this.startTimer = this.startTimer.bind(this);
+                this.startTimer();
+            }
+            startTimer() {
+                this.timer = setInterval(() => {
+                    if(this.state.initialIndex < this.state.tradeListData[0].prices.length -1 ){
+                        this.setState({
+                            initialIndex: this.state.initialIndex+1
+                        })
+                    }else{
+                        this.stopTimer();
+                    }
+                }, 5000);
+            }
+            stopTimer() {
+                clearInterval(this.timer)
+            }
+            resetTimer() {
+                this.setState({time: 0})
+            }
+            
+            render() {
+                let currentIndex = this.state.initialIndex;
+                return (
+                    <div>
+                        <ul>
+                            {this.state.tradeListData.map((item) =>
+                                <ListItem value={item} index={currentIndex}/>
+                            )}
+                        </ul>              
+                    </div>
+                )
+            }
+        }
+        function ListItem(props){
+            const item = props.value;
+            const currentIndex = props.index;
+            const tradeName = item.name;
+            const price = item.prices[currentIndex];
+            let percentage = (item.percentage[currentIndex]).toString().replace('-', '');
+            const volume = item.volume[currentIndex];
+            let isPriceUpClasses = 'price-data text-right';
+            let isVolumeUpClasses = 'volume';
+            let isPercentUpDownClasses = 'percentage';
+            if(currentIndex > 0){
+                let isUpDown = item.prices[currentIndex] > item.prices[currentIndex-1] ? 'up' : 'down';
+                isPriceUpClasses = isPriceUpClasses +" "+isUpDown;
+                let isVolUpDown = item.volume[currentIndex] > item.volume[currentIndex-1] ? 'up' : 'down';
+                isVolumeUpClasses = isVolumeUpClasses +" "+isVolUpDown;
+                let isPercentUpDown = item.percentage[currentIndex] > item.percentage[currentIndex-1] ? 'up up-arrow' : 'down down-arrow';
+                isPercentUpDownClasses = isPercentUpDownClasses +" "+isPercentUpDown;
+            }
+            
+            return <li className="trade-item list-inline" key={tradeName}>
+                <div>
+                    <span className="name">{tradeName}</span> 
+                    <span className="dot"></span> 
+                    <span className={isPriceUpClasses}>{price}</span>
+                </div>
+                <div>
+                    <span className={isPercentUpDownClasses}><i className={isPercentUpDownClasses}></i> {percentage}%</span> 
+                    <span className={isVolumeUpClasses}> {volume}</span>
+                </div>
+            </li>
+
+        }
+        ReactDOM.render(
+            <Trade />,
+            document.getElementById('react-container')
+        )
+    </script>
+
+  </body>
+
+</html>
